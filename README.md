@@ -10,6 +10,9 @@ You can either download the PS1 script from here, or install using...
 Install-Script BlockFolderWindowsFirewall
 ```
 This script is published on [PowerShell Gallery](https://www.powershellgallery.com/packages/BlockFolderWindowsFirewall).
+
+The code is signed, so if you want to change it, just removed the `# SIG # Begin signature block` line and everything beneath it.
+
 # Usage
 |Description|Command|
 |--|--|
