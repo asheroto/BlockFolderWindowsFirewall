@@ -1,3 +1,5 @@
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W64WAXN)
+
 # Block Entire Folder in Windows Firewall
 
 Unfortunately there is no way to *literally* block a folder in Windows Firewall, however, this script will **automate the process of blocking all EXEs inside a specified folder**.
