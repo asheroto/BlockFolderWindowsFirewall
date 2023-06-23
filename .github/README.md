@@ -1,8 +1,15 @@
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W64WAXN)
+[![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/asheroto/BlockFolderWindowsFirewall)](https://github.com/asheroto/BlockFolderWindowsFirewall/releases)
+[![GitHub Downloads - All Releases](https://img.shields.io/github/downloads/asheroto/BlockFolderWindowsFirewall/total)](https://github.com/sponsors/asheroto)
+[![GitHub Sponsor](https://img.shields.io/github/sponsors/asheroto?label=Sponsor&logo=GitHub)](https://github.com/sponsors/asheroto)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/asheroto)
 
 # Block Entire Folder in Windows Firewall
 
-Unfortunately there is no way to *literally* block a folder in Windows Firewall, however, this script will **automate the process of blocking all EXEs inside a specified folder**.
+This script provides functionalities to manage (block/unblock) executables (EXEs) in specified directories via Windows Firewall. The operation can be targeted at individual directories or recursively applied to subdirectories as well.
+
+By default, both Inbound and Outbound connections will be affected, but the scope can be controlled via the -Inbound or -Outbound switches.
+
+Special care should be taken when using this script due to its potentially broad impact. Blocking EXEs indiscriminately may disrupt applications depending on these executables.
 
 # Installing
 
@@ -11,41 +18,42 @@ You can either download the PS1 script from here, or install using...
 ```powershell
 Install-Script BlockFolderWindowsFirewall
 ```
+
 This script is published on [PowerShell Gallery](https://www.powershellgallery.com/packages/BlockFolderWindowsFirewall).
 
 The code is signed, so if you want to change it, just removed the `# SIG # Begin signature block` line and everything beneath it.
 
 # Usage
-|Description|Command|
-|--|--|
-|Block all EXEs in folder|`BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder"`|
-|Block all EXEs in folder & subfolders|`BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Recurse`
-|Unblock all EXEs in folder|`BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -UnblockInstead`|
-|Unblock all EXEs in folder & subfolders|`BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Recurse -UnblockInstead`|
 
-### Caution!
-Be careful when specifying the folder path. If you specify `C:\` as the path, it will block all EXEs on the C drive.
-
-It is recommended that you back up your firewall rules before using. [Here is an article](https://winaero.com/export-and-import-specific-firewall-rule-in-windows-10/) describing several methods.  
+```powershell
+BlockFolderWindowsFirewall [-Path <String>] [-Outbound] [-Inbound] [-Recurse] [-UnblockInstead] [-Version] [-Help] [-CheckForUpdate]
+```
 
 # Parameters
-  
+
 |Parameter|Required|Description|
 |--|--|--|
 |`-Path`|Yes|The folder of EXEs to block/unblock.|
 |`-Recurse`|No|Scans the folder and subfolders for EXEs.|
 |`-UnblockInstead`|No|Unblocks the EXEs in a folder or subfolder.|
+|`-Inbound`|No|Blocks all inbound connections for the EXEs in a folder or subfolder.|
+|`-Outbound`|No|Blocks all outbound connections for the EXEs in a folder or subfolder.|
+|`-Help`|No|Displays the help message.|
+|`-Version`|No|Shows the current version of the script.|
+|`-CheckForUpdate`|No|Checks if there is an update available for the script.|
 
-# Example
+# Examples
 
-Here's a folder with EXEs in it with path `C:\TestFolderToBlock`
-
-![example folder to block](https://i.imgur.com/iG5O9WD.png)
-
-Let's block EXEs in the folder path `C:\TestFolderToBlock`
- 
-![enter image description here](https://i.imgur.com/q2ctKys.jpeg)
-
-Now let's unblock the same folder
-
-![enter image description here](https://i.imgur.com/q2ctKys.jpeg)
+|Description|Command|
+|--|--|
+|Block all EXEs in a specified folder|`BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder"`|
+|Block all EXEs in a specified folder and its subfolders|`BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Recurse`|
+|Block only the inbound connections for EXEs in a specified folder|`BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Inbound`|
+|Block only the outbound connections for EXEs in a specified folder|`BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Outbound`|
+|Unblock all EXEs in a specified folder|`BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -UnblockInstead`|
+|Unblock all EXEs in a specified folder and its subfolders|`BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Recurse -UnblockInstead`|
+|Unblock only the inbound connections for EXEs in a specified folder|`BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -UnblockInstead -Inbound`|
+|Unblock only the outbound connections for EXEs in a specified folder|`BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -UnblockInstead -Outbound`|
+|Display help for the script|`BlockFolderWindowsFirewall -Help`|
+|Check the current version of the script|`BlockFolderWindowsFirewall -Version`|
+|Check if there is an update available for the script|`BlockFolderWindowsFirewall -CheckForUpdate`|
