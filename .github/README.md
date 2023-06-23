@@ -58,3 +58,6 @@ BlockFolderWindowsFirewall [-Path <String>] [-Outbound] [-Inbound] [-Recurse] [-
 |Display help for the script|`BlockFolderWindowsFirewall -Help`|
 |Check the current version of the script|`BlockFolderWindowsFirewall -Version`|
 |Check if there is an update available for the script|`BlockFolderWindowsFirewall -CheckForUpdate`|
+
+# Screenshot
+![Screenshot](https://github.com/asheroto/BlockFolderWindowsFirewall/assets/49938263/439d99ed-0ad1-4f75-87bc-11d385185567)
