@@ -1,6 +1,6 @@
 <#PSScriptInfo
 
-.VERSION 1.0.0
+.VERSION 1.0.1
 
 .GUID c7a7f36d-3d4f-4e2e-9bec-336ec8a0eb16
 
@@ -17,6 +17,7 @@
 [Version 0.0.2] - Added recurse option.
 [Version 0.0.3] - Updated code signing certificate.
 [Version 1.0.0] - Major improvements. Added -Version, -Help, -CheckForUpdate. Added inbound/outbound option (will do both if not specified).
+[Version 1.0.1] - Added additional line breaks, changed first line to warning, and added PowerShell gallery info to -CheckForUpdate
 
 #>
 
@@ -62,7 +63,7 @@
 	BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Outbound -UnblockInstead
 	This command will unblock only outbound traffic for all EXEs in the specified folder.
 .NOTES
-    Version      : 1.0.0
+    Version      : 1.0.1
     Created by   : asheroto
 .LINK
     Project Site: https://github.com/asheroto/BlockFolderWindowsFirewall
@@ -101,13 +102,13 @@ if ($Recurse.IsPresent -or $UnblockInstead.IsPresent -or $Outbound.IsPresent -or
 }
 
 # Version
-$CurrentVersion = '1.0.0'
+$CurrentVersion = '1.0.1'
 $RepoOwner = 'asheroto'
 $RepoName = 'BlockFolderWindowsFirewall'
 
 # Check if -Version is specified
 if ($Version.IsPresent) {
-	$CurrentVersion
+	Write-Output "$RepoName $CurrentVersion"
 	exit 0
 }
 
@@ -149,11 +150,18 @@ if ($CheckForUpdate) {
 	$Data = Check-GitHubRelease -Owner $RepoOwner -Repo $RepoName
 
 	if ($Data.LatestVersion -gt $CurrentVersion) {
-		Write-Output "A new version of $RepoName is available.`nCurrent version: $CurrentVersion. Latest version: $($Data.LatestVersion). Published at: $($Data.PublishedDateTime)."
-		Write-Output "You can download the latest version from https://github.com/$RepoOwner/$RepoName/releases"
+		Write-Output ""
+		Write-Warning "$RepoName is out of date.`n"
+		Write-Output "Current version: $CurrentVersion. Latest version: $($Data.LatestVersion). Published at: $($Data.PublishedDateTime).`n"
+		Write-Output "You can download the latest version from https://github.com/$RepoOwner/$RepoName/releases`n"
+		Write-Output "If you have PowerShell 5 or later, you can run"
+		Write-Output "`tInstall-Script -Name $RepoName -Force"
+		Write-Output "to install the latest version.`n"
 	} else {
-		Write-Output "$RepoName is up to date.`nCurrent version: $CurrentVersion. Latest version: $($Data.LatestVersion). Published at: $($Data.PublishedDateTime)."
-		Write-OUtput "Repository: https://github.com/$RepoOwner/$RepoName/releases"
+		Write-Output "`n$RepoName is up to date.`n"
+		Write-Output "Current version: $CurrentVersion. Latest version: $($Data.LatestVersion). Published at: $($Data.PublishedDateTime).`n"
+		Write-Output "Repository: https://github.com/$RepoOwner/$RepoName/releases`n"
+		Write-Output "PowerShell Gallery: https://www.powershellgallery.com/packages/$RepoName`n"
 	}
 	exit 0
 }
@@ -215,10 +223,12 @@ function Unblock-Exe {
 
 # Confirm folder path exists
 If (Test-Path -Path $Path -PathType Container) {
+	# Update note
+	Write-Output "`n$RepoName $CurrentVersion"
+	Write-Output "To check for updates, run $RepoName -CheckForUpdate`n"
+
 	# Folder path exists
-	Write-Output ""
-	Write-Output "Folder exists, continuing..."
-	Write-Output ""
+	Write-Output "Folder exists, continuing...`n"
 
 	# Pause for 10 seconds if the folder is C:\
 	If ($Path -eq "C:\") {

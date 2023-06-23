@@ -15,8 +15,10 @@ Special care should be taken when using this script due to its potentially broad
 You can either download the PS1 script from here, or install using...
 
 ```powershell
-Install-Script BlockFolderWindowsFirewall
+Install-Script BlockFolderWindowsFirewall -Force
 ```
+
+Answer **Yes** to any prompts. `-Force` is optional, but it will force the script to update if it is outdated.
 
 This script is published on [PowerShell Gallery](https://www.powershellgallery.com/packages/BlockFolderWindowsFirewall).
 
