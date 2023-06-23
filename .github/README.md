@@ -1,5 +1,5 @@
 [<img alt="Release Date" src="https://img.shields.io/github/release-date/asheroto/BlockFolderWindowsFirewall">](https://github.com/asheroto/BlockFolderWindowsFirewall/releases)
-[<img alt="Downloads" src="https://img.shields.io/github/downloads/asheroto/BlockFolderWindowsFirewall/total">](https://github.com/asheroto/BlockFolderWindowsFirewall/releases)
+[<img alt="Downloads" src="https://img.shields.io/github/downloads/asheroto/BlockFolderWindowsFirewall/total?v=2">](https://github.com/asheroto/BlockFolderWindowsFirewall/releases)
 [<img alt="Sponsor on GitHub" src="https://img.shields.io/github/sponsors/asheroto?label=Sponsor&logo=GitHub">](https://github.com/sponsors/asheroto)
 [<img alt="Sponsor on Ko-Fi" src="https://ko-fi.com/img/githubbutton_sm.svg">](https://ko-fi.com/asheroto)
 
