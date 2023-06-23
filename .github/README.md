@@ -1,7 +1,7 @@
 [![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/asheroto/BlockFolderWindowsFirewall)](https://github.com/asheroto/BlockFolderWindowsFirewall/releases)
+[![GitHub Downloads - All Releases](https://img.shields.io/github/downloads/asheroto/BlockFolderWindowsFirewall/total)](https://github.com/asheroto/BlockFolderWindowsFirewall/releases)
 [![GitHub Sponsor](https://img.shields.io/github/sponsors/asheroto?label=Sponsor&logo=GitHub)](https://github.com/sponsors/asheroto)
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/asheroto)
-
 # Block Entire Folder in Windows Firewall
 
 This script provides functionalities to manage (block/unblock) executables (EXEs) in specified directories via Windows Firewall. The operation can be targeted at individual directories or recursively applied to subdirectories as well.
