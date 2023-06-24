@@ -22,8 +22,6 @@ Answer **Yes** to any prompts. `-Force` is optional, but it will force the scrip
 
 This script is published on [PowerShell Gallery](https://www.powershellgallery.com/packages/BlockFolderWindowsFirewall).
 
-The code is signed, so if you want to change it, just removed the `# SIG # Begin signature block` line and everything beneath it.
-
 # Usage
 
 ```powershell
