@@ -1,6 +1,6 @@
 <#PSScriptInfo
 
-.VERSION 1.0.2
+.VERSION 1.1.0
 
 .GUID c7a7f36d-3d4f-4e2e-9bec-336ec8a0eb16
 
@@ -8,7 +8,7 @@
 
 .COMPANYNAME asheroto
 
-.TAGS PowerShell Windows exe block firewall folder directory recursive
+.TAGS PowerShell Windows exe block allow unblock firewall folder directory recursive
 
 .PROJECTURI https://github.com/asheroto/BlockFolderWindowsFirewall
 
@@ -19,21 +19,23 @@
 [Version 1.0.0] - Major improvements. Added -Version, -Help, -CheckForUpdate. Added inbound/outbound option (will do both if not specified).
 [Version 1.0.1] - Added additional line breaks, changed first line to warning, and added PowerShell gallery info to -CheckForUpdate
 [Version 1.0.2] - Added UpdateSelf function, fixed CheckForUpdate function.
+[Version 1.1.0] - Added -Allow parameter, merged Block/Allow into Set-ExeFirewallRule, refactored main loop.
 
 #>
 
 <#
 .SYNOPSIS
-    Block all EXEs in a specified folder in Windows Firewall.
+    Block, allow, or unblock all EXEs in a specified folder in Windows Firewall.
 .DESCRIPTION
-	This script provides functionalities to manage (block/unblock) executables (EXEs) in specified directories via Windows Firewall. The operation can be targeted at individual directories or recursively applied to subdirectories as well.
+	This script provides functionalities to manage (block/allow/unblock) executables (EXEs) in specified directories via Windows Firewall. The operation can be targeted at individual directories or recursively applied to subdirectories as well.
 
 	By default, both Inbound and Outbound connections will be affected, but the scope can be controlled via the -Inbound or -Outbound switches.
 
 	Here are key switches to guide the script's behavior:
 	  -Path to specify the target directory.
 	  -Recurse switch will include all subdirectories in the operation.
-	  -UnblockInstead switch changes the operation mode from blocking to unblocking.
+	  -UnblockInstead switch changes the operation mode from blocking to unblocking (removes existing Block rules).
+	  -Allow switch creates Allow firewall rules instead of Block rules.
 	  -Inbound switch will only affect Inbound connections.
 	  -Outbound switch will only affect Outbound connections.
 
@@ -43,8 +45,6 @@
 	  -CheckForUpdate switch verifies if the current script version is up-to-date.
 
 	Special care should be taken when using this script due to its potentially broad impact. Blocking EXEs indiscriminately may disrupt applications depending on these executables.
-
-	For detailed examples of usage, refer to the .EXAMPLE section.
 .EXAMPLE
     BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder"
     This command will block both inbound and outbound traffic for all EXEs in the specified folder.
@@ -63,12 +63,26 @@
 .EXAMPLE
 	BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Outbound -UnblockInstead
 	This command will unblock only outbound traffic for all EXEs in the specified folder.
+.EXAMPLE
+	BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Allow
+	This command will create Allow rules for both inbound and outbound traffic for all EXEs in the specified folder.
+.EXAMPLE
+	BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Allow -Recurse
+	This command will create Allow rules for both inbound and outbound traffic for all EXEs in the specified folder and all its subfolders.
+.EXAMPLE
+	BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Allow -Inbound
+	This command will create Allow rules for only inbound traffic for all EXEs in the specified folder.
+.EXAMPLE
+	BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Allow -Outbound
+	This command will create Allow rules for only outbound traffic for all EXEs in the specified folder.
 .PARAMETER Path
     The directory path to target for the operation.
 .PARAMETER Recurse
     Include all subdirectories in the operation.
 .PARAMETER UnblockInstead
-    Change the operation mode from blocking to unblocking.
+    Change the operation mode from blocking to unblocking (removes existing Block rules).
+.PARAMETER Allow
+    Create Allow firewall rules instead of Block rules. Cannot be used with -UnblockInstead.
 .PARAMETER Inbound
     Only affect Inbound connections.
 .PARAMETER Outbound
@@ -82,7 +96,7 @@
 .PARAMETER Help
     Bring up the help information for the script usage.
 .NOTES
-    Version      : 1.0.2
+    Version      : 1.1.0
     Created by   : asheroto
 .LINK
     Project Site: https://github.com/asheroto/BlockFolderWindowsFirewall
@@ -97,6 +111,7 @@ param (
     [Switch]$Inbound,
     [Switch]$Recurse,
     [Switch]$UnblockInstead,
+    [Switch]$Allow,
     [switch]$CheckForUpdate,
     [switch]$UpdateSelf,
     [switch]$Version,
@@ -104,7 +119,7 @@ param (
 )
 
 # Version
-$CurrentVersion = '1.0.2'
+$CurrentVersion = '1.1.0'
 $RepoOwner = 'asheroto'
 $RepoName = 'BlockFolderWindowsFirewall'
 $PowerShellGalleryName = 'BlockFolderWindowsFirewall'
@@ -235,24 +250,28 @@ function UpdateSelf {
     }
 }
 
-function Block-Exe {
+function Set-ExeFirewallRule {
     param(
         [String]$FileName,
         [String]$FilePath,
+        [ValidateSet('Allow', 'Block')]
+        [String]$Action,
         [Switch]$Inbound,
         [Switch]$Outbound
     )
 
-    If ($Inbound.IsPresent -eq $false -and $Outbound.IsPresent -eq $false) {
-        Write-Output "Blocking Inbound and Outbound $FilePath..."
-        New-NetFirewallRule -DisplayName "$FileName" -Direction Inbound -Program $FilePath -Action Block | Out-Null
-        New-NetFirewallRule -DisplayName "$FileName" -Direction Outbound -Program $FilePath -Action Block | Out-Null
+    $verb = if ($Action -eq 'Allow') { 'Allowing' } else { 'Blocking' }
+
+    if ($Inbound.IsPresent -eq $false -and $Outbound.IsPresent -eq $false) {
+        Write-Output "$verb Inbound and Outbound $FilePath..."
+        New-NetFirewallRule -DisplayName $FileName -Direction Inbound -Program $FilePath -Action $Action | Out-Null
+        New-NetFirewallRule -DisplayName $FileName -Direction Outbound -Program $FilePath -Action $Action | Out-Null
     } elseif ($Inbound.IsPresent) {
-        Write-Output "Blocking Inbound $FilePath..."
-        New-NetFirewallRule -DisplayName "$FileName" -Direction Inbound -Program $FilePath -Action Block | Out-Null
+        Write-Output "$verb Inbound $FilePath..."
+        New-NetFirewallRule -DisplayName $FileName -Direction Inbound -Program $FilePath -Action $Action | Out-Null
     } elseif ($Outbound.IsPresent) {
-        Write-Output "Blocking Outbound $FilePath..."
-        New-NetFirewallRule -DisplayName "$FileName" -Direction Outbound -Program $FilePath -Action Block | Out-Null
+        Write-Output "$verb Outbound $FilePath..."
+        New-NetFirewallRule -DisplayName $FileName -Direction Outbound -Program $FilePath -Action $Action | Out-Null
     }
 }
 
@@ -306,8 +325,14 @@ if ("" -eq $Path) {
     }
 }
 
-# If -Recurse or -UnblockInstead is specified, -Path is required
-if ($Recurse.IsPresent -or $UnblockInstead.IsPresent -or $Outbound.IsPresent -or $Inbound.IsPresent) {
+# -Allow and -UnblockInstead are mutually exclusive
+if ($Allow.IsPresent -and $UnblockInstead.IsPresent) {
+    Write-Error "-Allow and -UnblockInstead cannot be used together"
+    exit 1
+}
+
+# If any operation switch is specified, -Path is required
+if ($Recurse.IsPresent -or $UnblockInstead.IsPresent -or $Allow.IsPresent -or $Outbound.IsPresent -or $Inbound.IsPresent) {
     if ("" -eq $Path) {
         Write-Error "-Path is required"
         exit 1
@@ -329,44 +354,29 @@ if (Test-Path -Path $Path -PathType Container) {
         Start-Sleep -Seconds 10
     }
 
-    # Determine if we're blocking or unblocking
-    if ($UnblockInstead) {
-        # Unblocking
-        if ($Recurse) {
-            # Recursively unblocking
-            Write-Output "Recursively unblocking EXEs in $Path..."
-            Get-ChildItem -Path $Path -Filter "*.exe" -Recurse | ForEach-Object {
-                $FilePath = $_.FullName
-                $FileName = Split-Path $FilePath -Leaf
-                Unblock-Exe -FilePath $FilePath -FileName $FileName -Inbound:$Inbound.IsPresent -Outbound:$Outbound.IsPresent
-            }
-        } else {
-            # Not recursively unblocking
-            Write-Output "Unblocking EXEs in $Path..."
-            Get-ChildItem -Path $Path -Filter "*.exe" | ForEach-Object {
-                $FilePath = $_.FullName
-                $FileName = Split-Path $FilePath -Leaf
-                Unblock-Exe -FilePath $FilePath -FileName $FileName -Inbound:$Inbound.IsPresent -Outbound:$Outbound.IsPresent
-            }
-        }
+    # Print operation summary line
+    $recursePrefix = if ($Recurse) { "Recursively " } else { "" }
+    if ($Allow) {
+        Write-Output "${recursePrefix}allowing EXEs in $Path..."
+    } elseif ($UnblockInstead) {
+        Write-Output "${recursePrefix}unblocking EXEs in $Path..."
     } else {
-        # Blocking
-        if ($Recurse) {
-            # Recursively blocking
-            Write-Output "Recursively blocking EXEs in $Path..."
-            Get-ChildItem -Path $Path -Filter "*.exe" -Recurse | ForEach-Object {
-                $FilePath = $_.FullName
-                $FileName = Split-Path $FilePath -Leaf
-                Block-Exe -FilePath $FilePath -FileName $FileName -Inbound:$Inbound.IsPresent -Outbound:$Outbound.IsPresent
-            }
+        Write-Output "${recursePrefix}blocking EXEs in $Path..."
+    }
+
+    # Build Get-ChildItem params
+    $gciParams = @{ Path = $Path; Filter = '*.exe' }
+    if ($Recurse) { $gciParams['Recurse'] = $true }
+
+    Get-ChildItem @gciParams | ForEach-Object {
+        $FilePath = $_.FullName
+        $FileName = Split-Path $FilePath -Leaf
+        if ($Allow) {
+            Set-ExeFirewallRule -FilePath $FilePath -FileName $FileName -Action Allow -Inbound:$Inbound.IsPresent -Outbound:$Outbound.IsPresent
+        } elseif ($UnblockInstead) {
+            Unblock-Exe -FilePath $FilePath -Inbound:$Inbound.IsPresent -Outbound:$Outbound.IsPresent
         } else {
-            # Not recursively blocking
-            Write-Output "Blocking EXEs in $Path..."
-            Get-ChildItem -Path $Path -Filter "*.exe" | ForEach-Object {
-                $FilePath = $_.FullName
-                $FileName = Split-Path $FilePath -Leaf
-                Block-Exe -FilePath $FilePath -FileName $FileName -Inbound:$Inbound.IsPresent -Outbound:$Outbound.IsPresent
-            }
+            Set-ExeFirewallRule -FilePath $FilePath -FileName $FileName -Action Block -Inbound:$Inbound.IsPresent -Outbound:$Outbound.IsPresent
         }
     }
 

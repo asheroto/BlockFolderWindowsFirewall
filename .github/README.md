@@ -5,15 +5,15 @@
 
 [![GitHub Sponsor](https://img.shields.io/github/sponsors/asheroto?label=Sponsor&logo=GitHub)](https://github.com/sponsors/asheroto?frequency=one-time&sponsor=asheroto)
 <a href="https://ko-fi.com/asheroto"><img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Ko-Fi Button" height="20px"></a>
-<a href="https://www.buymeacoffee.com/asheroto"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=seb6596&button_colour=FFDD00&font_colour=000000&font_family=Lato&outline_colour=000000&coffee_colour=ffffff](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=asheroto&button_colour=FFDD00&font_colour=000000&font_family=Lato&outline_colour=000000&coffee_colour=ffffff)" height="40px"></a>
+<a href="https://www.buymeacoffee.com/asheroto"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="40px"></a>
 
-# Block Entire Folder in Windows Firewall
+# Block, Allow, or Unblock Entire Folder in Windows Firewall
 
-This script provides functionalities to manage (block/unblock) executables (EXEs) in specified directories via Windows Firewall. The operation can be targeted at individual directories or recursively applied to subdirectories as well.
+This script provides functionalities to manage (block/allow/unblock) executables (EXEs) in specified directories via Windows Firewall. The operation can be targeted at individual directories or recursively applied to subdirectories as well.
 
 By default, both Inbound and Outbound connections will be affected, but the scope can be controlled via the -Inbound or -Outbound switches.
 
-Special care should be taken when using this script due to its potentially broad impact. Blocking EXEs indiscriminately may disrupt applications depending on these executables.
+Special care should be taken when using this script due to its potentially broad impact. Blocking or allowing EXEs indiscriminately may disrupt applications depending on these executables.
 
 # Installing
 
@@ -30,22 +30,23 @@ This script is published on [PowerShell Gallery](https://www.powershellgallery.c
 # Usage
 
 ```powershell
-BlockFolderWindowsFirewall [-Path <String>] [-Outbound] [-Inbound] [-Recurse] [-UnblockInstead] [-Version] [-Help] [-CheckForUpdate]
+BlockFolderWindowsFirewall [-Path <String>] [-Outbound] [-Inbound] [-Recurse] [-UnblockInstead] [-Allow] [-Version] [-Help] [-CheckForUpdate]
 ```
 
 # Parameters
 
-| Parameter         | Required | Description                                                            |
-| ----------------- | -------- | ---------------------------------------------------------------------- |
-| `-Path`           | Yes      | The folder of EXEs to block/unblock.                                   |
-| `-Recurse`        | No       | Scans the folder and subfolders for EXEs.                              |
-| `-UnblockInstead` | No       | Unblocks the EXEs in a folder or subfolder.                            |
-| `-Inbound`        | No       | Blocks all inbound connections for the EXEs in a folder or subfolder.  |
-| `-Outbound`       | No       | Blocks all outbound connections for the EXEs in a folder or subfolder. |
-| `-CheckForUpdate` | No       | Checks if there is an update available for the script.                 |
-| `-UpdateSelf`     | No       | Updates the script to the latest version.                              |
-| `-Help`           | No       | Displays the help message.                                             |
-| `-Version`        | No       | Shows the current version of the script.                               |
+| Parameter         | Required | Description                                                                    |
+| ----------------- | -------- | ------------------------------------------------------------------------------ |
+| `-Path`           | Yes      | The folder of EXEs to block/allow/unblock.                                     |
+| `-Recurse`        | No       | Scans the folder and subfolders for EXEs.                                      |
+| `-UnblockInstead` | No       | Removes existing Block rules for the EXEs in a folder or subfolder.            |
+| `-Allow`          | No       | Creates Allow rules instead of Block rules. Cannot be used with -UnblockInstead. |
+| `-Inbound`        | No       | Only affects inbound connections for the EXEs in a folder or subfolder.        |
+| `-Outbound`       | No       | Only affects outbound connections for the EXEs in a folder or subfolder.       |
+| `-CheckForUpdate` | No       | Checks if there is an update available for the script.                         |
+| `-UpdateSelf`     | No       | Updates the script to the latest version.                                      |
+| `-Help`           | No       | Displays the help message.                                                     |
+| `-Version`        | No       | Shows the current version of the script.                                       |
 
 # Examples
 
@@ -59,6 +60,10 @@ BlockFolderWindowsFirewall [-Path <String>] [-Outbound] [-Inbound] [-Recurse] [-
 | Unblock all EXEs in a specified folder and its subfolders            | `BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Recurse -UnblockInstead`  |
 | Unblock only the inbound connections for EXEs in a specified folder  | `BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -UnblockInstead -Inbound`  |
 | Unblock only the outbound connections for EXEs in a specified folder | `BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -UnblockInstead -Outbound` |
+| Allow all EXEs in a specified folder                                 | `BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Allow`                    |
+| Allow all EXEs in a specified folder and its subfolders              | `BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Allow -Recurse`           |
+| Allow only the inbound connections for EXEs in a specified folder    | `BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Allow -Inbound`           |
+| Allow only the outbound connections for EXEs in a specified folder   | `BlockFolderWindowsFirewall -Path "C:\Folder\Subfolder" -Allow -Outbound`          |
 | Display help for the script                                          | `BlockFolderWindowsFirewall -Help`                                                 |
 | Check the current version of the script                              | `BlockFolderWindowsFirewall -Version`                                              |
 | Check if there is an update available for the script                 | `BlockFolderWindowsFirewall -CheckForUpdate`                                       |
