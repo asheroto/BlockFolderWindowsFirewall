@@ -350,18 +350,18 @@ if (Test-Path -Path $Path -PathType Container) {
 
     # Pause for 10 seconds if the folder is C:\
     If ($Path -eq "C:\") {
-        Write-Output "WARNING: You specified C:\ as the path, this will block all EXEs on the C drive. Press CTRL+C to cancel, or wait 10 seconds to continue..."
+        Write-Warning "You specified C:\ as the path, this will affect all EXEs on the C drive. Press CTRL+C to cancel, or wait 10 seconds to continue..."
         Start-Sleep -Seconds 10
     }
 
     # Print operation summary line
     $recursePrefix = if ($Recurse) { "Recursively " } else { "" }
     if ($Allow) {
-        Write-Output "${recursePrefix}allowing EXEs in $Path..."
+        Write-Output "${recursePrefix}Allowing EXEs in $Path..."
     } elseif ($UnblockInstead) {
-        Write-Output "${recursePrefix}unblocking EXEs in $Path..."
+        Write-Output "${recursePrefix}Unblocking EXEs in $Path..."
     } else {
-        Write-Output "${recursePrefix}blocking EXEs in $Path..."
+        Write-Output "${recursePrefix}Blocking EXEs in $Path..."
     }
 
     # Build Get-ChildItem params
@@ -383,7 +383,7 @@ if (Test-Path -Path $Path -PathType Container) {
     Write-Output "Done!"
 } else {
     # Folder path does not exist
-    Write-Output "Folder does NOT exist, please run script again with a valid path"
+    Write-Warning "Folder does not exist, please run the script again with a valid path"
 }
 
 Write-Output ""
